@@ -6,6 +6,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import ProgressChart from "@/components/charts/ProgressChart";
+import ResourceChart from "@/components/charts/ResourceChart";
+import CodingChart from "@/components/charts/CodingChart";
 
 interface Log {
   id: string;
@@ -118,6 +121,14 @@ export default function Dashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-8">
+        <ProgressChart />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ResourceChart />
+          <CodingChart />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
