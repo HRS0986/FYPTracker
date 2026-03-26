@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Award, Lightbulb, PenTool, ExternalLink, Loader2, Trash2, Cpu } from "lucide-react";
+import { Plus, Award, Lightbulb, PenTool, ExternalLink, Loader2, Trash2, Cpu, Pencil, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 interface Outcome {
   id: string;
@@ -13,6 +13,7 @@ interface Outcome {
   description: string;
   url?: string;
   date: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt: any;
 }
 
@@ -22,6 +23,8 @@ export default function Outcomes() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -56,28 +59,60 @@ export default function Outcomes() {
     return () => unsubscribe();
   }, [user]);
 
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    if (activeMenuId) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [activeMenuId]);
+
+  const resetForm = () => {
+    setTitle("");
+    setType("knowledge");
+    setDescription("");
+    setUrl("");
+    setDate(new Date().toISOString().split("T")[0]);
+    setEditingId(null);
+    setIsFormOpen(false);
+  };
+
+  const handleEdit = (outcome: Outcome) => {
+    setEditingId(outcome.id);
+    setTitle(outcome.title);
+    setType(outcome.type);
+    setDescription(outcome.description);
+    setUrl(outcome.url || "");
+    setDate(outcome.date);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleSaveOutcome = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !title.trim() || !description.trim()) return;
 
     setIsSaving(true);
     try {
-      await addDoc(collection(db, "outcomes"), {
-        userId: user.uid,
+      const outcomeData = {
         title,
         type,
         description,
         url,
         date,
-        createdAt: serverTimestamp()
-      });
+      };
 
-      // Reset form
-      setTitle("");
-      setType("knowledge");
-      setDescription("");
-      setUrl("");
-      setIsFormOpen(false);
+      if (editingId) {
+        await updateDoc(doc(db, "outcomes", editingId), outcomeData);
+      } else {
+        await addDoc(collection(db, "outcomes"), {
+          ...outcomeData,
+          userId: user.uid,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      resetForm();
     } catch (error) {
       console.error("Error saving outcome: ", error);
       alert("Failed to save outcome.");
@@ -128,11 +163,14 @@ export default function Outcomes() {
             Outcomes & Achievements
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">
-            Track published articles, newly gained knowledge, and tools you've successfully built.
+            Track published articles, newly gained knowledge, and tools you&apos;ve successfully built.
           </p>
         </div>
         <button
-          onClick={() => setIsFormOpen(!isFormOpen)}
+          onClick={() => {
+            if (isFormOpen) resetForm();
+            else setIsFormOpen(true);
+          }}
           className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm"
         >
           <Plus className={`h-4 w-4 transition-transform ${isFormOpen ? "rotate-45" : ""}`} />
@@ -142,7 +180,9 @@ export default function Outcomes() {
 
       {isFormOpen && (
         <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 animate-in slide-in-from-top-4 fade-in duration-200 transition-colors">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 transition-colors">Add New Outcome</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 transition-colors">
+            {editingId ? "Edit Outcome" : "Add New Outcome"}
+          </h2>
           <form className="space-y-5" onSubmit={handleSaveOutcome}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -212,7 +252,7 @@ export default function Outcomes() {
                 className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
               >
                 {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
-                {isSaving ? "Saving..." : "Save Achievement"}
+                {isSaving ? "Saving..." : editingId ? "Update Achievement" : "Save Achievement"}
               </button>
             </div>
           </form>
@@ -235,9 +275,35 @@ export default function Outcomes() {
             <div key={item.id} className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full hover:shadow-md dark:hover:shadow-slate-800/50 transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 dark:bg-slate-800/20 rounded-bl-full -z-10 transition-colors"></div>
               
-              <button onClick={() => handleDelete(item.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="Delete Outcome">
-                 <Trash2 className="h-5 w-5" />
-              </button>
+              <div className="absolute top-4 right-4 z-20">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                  }} 
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                  title="Settings"
+                >
+                  <Settings className={`h-5 w-5 transition-transform duration-300 ${activeMenuId === item.id ? "rotate-90" : ""}`} />
+                </button>
+                
+                {activeMenuId === item.id && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                    <button 
+                      onClick={() => handleEdit(item)} 
+                      className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
+                    >
+                      <Pencil className="h-4 w-4" /> Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)} 
+                      className="w-full px-4 py-2 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-start gap-4 mb-4">
                 <div className={`p-3 rounded-2xl border ${getBadgeStyle(item.type)} transition-colors`}>

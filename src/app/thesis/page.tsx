@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { Plus, GraduationCap, Edit2, Trash2, Loader2, Save, X, BookOpen, FileText } from "lucide-react";
+import { Plus, GraduationCap, Pencil, Trash2, Loader2, Save, X, BookOpen, Settings } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
@@ -12,6 +12,7 @@ interface Chapter {
   id: string;
   title: string;
   content: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt: any;
 }
 
@@ -32,6 +33,7 @@ export default function Thesis() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Form State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -62,6 +64,14 @@ export default function Thesis() {
 
     return () => unsubscribe();
   }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    if (activeMenuId) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [activeMenuId]);
 
   const handleSaveChapter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,12 +180,12 @@ export default function Thesis() {
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors">Chapter Content / Outline *</label>
               <div className="bg-white dark:bg-slate-950 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
                 <ReactQuill 
-                  theme="snow"
-                  value={content}
-                  onChange={setContent}
-                  modules={modules}
-                  placeholder="Start writing your research content here..."
-                  className="thesis-editor dark:text-slate-100 min-h-[350px]"
+                   theme="snow"
+                   value={content}
+                   onChange={setContent}
+                   modules={modules}
+                   placeholder="Start writing your research content here..."
+                   className="thesis-editor dark:text-slate-100 min-h-[350px]"
                 />
               </div>
             </div>
@@ -258,21 +268,34 @@ export default function Thesis() {
                       {chapter.title}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="relative z-20">
                     <button 
-                      onClick={() => handleEdit(chapter)}
-                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-                      title="Edit Chapter"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveMenuId(activeMenuId === chapter.id ? null : chapter.id);
+                      }} 
+                      className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                      title="Settings"
                     >
-                      <Edit2 className="w-5 h-5" />
+                      <Settings className={`h-5 w-5 transition-transform duration-300 ${activeMenuId === chapter.id ? "rotate-90" : ""}`} />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(chapter.id)}
-                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                      title="Delete Chapter"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    
+                    {activeMenuId === chapter.id && (
+                      <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button 
+                          onClick={() => handleEdit(chapter)} 
+                          className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
+                        >
+                          <Pencil className="h-4 w-4" /> Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(chapter.id)} 
+                          className="w-full px-4 py-2 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 

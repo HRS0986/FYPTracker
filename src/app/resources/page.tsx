@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, Plus, BookOpen, Video, Globe, Loader2, Trash2, MessageSquare, FileText } from "lucide-react";
+import { ExternalLink, Plus, BookOpen, Video, Globe, Loader2, Trash2, MessageSquare, FileText, Pencil, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 interface Resource {
   id: string;
@@ -22,6 +22,8 @@ export default function Resources() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -54,26 +56,57 @@ export default function Resources() {
     return () => unsubscribe();
   }, [user]);
 
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    if (activeMenuId) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [activeMenuId]);
+
+  const resetForm = () => {
+    setTitle("");
+    setType("paper");
+    setUrl("");
+    setNotes("");
+    setEditingId(null);
+    setIsFormOpen(false);
+  };
+
+  const handleEdit = (resource: Resource) => {
+    setEditingId(resource.id);
+    setTitle(resource.title);
+    setType(resource.type);
+    setUrl(resource.url);
+    setNotes(resource.notes);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleSaveResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !title.trim()) return;
 
     setIsSaving(true);
     try {
-      await addDoc(collection(db, "resources"), {
-        userId: user.uid,
+      const resourceData = {
         title,
         type,
         url,
         notes,
-        createdAt: serverTimestamp()
-      });
+      };
 
-      setTitle("");
-      setType("paper");
-      setUrl("");
-      setNotes("");
-      setIsFormOpen(false);
+      if (editingId) {
+        await updateDoc(doc(db, "resources", editingId), resourceData);
+      } else {
+        await addDoc(collection(db, "resources"), {
+          ...resourceData,
+          userId: user.uid,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      resetForm();
     } catch (error) {
       console.error("Error saving resource: ", error);
       alert("Failed to save resource.");
@@ -115,7 +148,10 @@ export default function Resources() {
           <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">Manage papers, articles, and useful links for Your Final Year Research.</p>
         </div>
         <button
-          onClick={() => setIsFormOpen(!isFormOpen)}
+          onClick={() => {
+            if (isFormOpen) resetForm();
+            else setIsFormOpen(true);
+          }}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
           <Plus className={`h-4 w-4 transition-transform ${isFormOpen ? "rotate-45" : ""}`} />
@@ -125,7 +161,9 @@ export default function Resources() {
 
       {isFormOpen && (
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 animate-in slide-in-from-top-4 fade-in duration-200 transition-colors">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 transition-colors">Add New Resource</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 transition-colors">
+            {editingId ? "Edit Resource" : "Add New Resource"}
+          </h2>
           <form className="space-y-4" onSubmit={handleSaveResource}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -181,7 +219,7 @@ export default function Resources() {
                 className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSaving ? "Saving..." : "Save Resource"}
+                {isSaving ? "Saving..." : editingId ? "Update Resource" : "Save Resource"}
               </button>
             </div>
           </form>
@@ -201,9 +239,35 @@ export default function Resources() {
           {resources.map((resource) => (
             <div key={resource.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 flex flex-col h-full hover:shadow-md dark:hover:shadow-slate-800/50 transition-all group relative">
               
-              <button onClick={() => handleDelete(resource.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="Delete Resource">
-                 <Trash2 className="h-4 w-4" />
-              </button>
+              <div className="absolute top-4 right-4 z-20">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMenuId(activeMenuId === resource.id ? null : resource.id);
+                  }} 
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                  title="Settings"
+                >
+                  <Settings className={`h-5 w-5 transition-transform duration-300 ${activeMenuId === resource.id ? "rotate-90" : ""}`} />
+                </button>
+                
+                {activeMenuId === resource.id && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                    <button 
+                      onClick={() => handleEdit(resource)} 
+                      className="w-full px-4 py-2.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
+                    >
+                      <Pencil className="h-4 w-4" /> Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(resource.id)} 
+                      className="w-full px-4 py-2.5 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 transition-colors">

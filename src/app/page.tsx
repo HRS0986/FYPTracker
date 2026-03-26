@@ -1,11 +1,11 @@
 "use client";
 
-import { Activity, BookOpen, Clock, Code, GraduationCap, Award, CheckCircle2 } from "lucide-react";
+import { Activity, BookOpen, Code, GraduationCap, Award, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, query, where, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 
 interface Log {
   id: string;
@@ -14,10 +14,6 @@ interface Log {
   nextSteps: string;
 }
 
-interface Resource {
-  id: string;
-  title: string;
-}
 
 interface Outcome {
   id: string;
@@ -34,7 +30,6 @@ interface Chapter {
 export default function Dashboard() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<Log[]>([]);
-  const [resources, setResources] = useState<Resource[]>([]);
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [totalLogs, setTotalLogs] = useState(0);
@@ -59,17 +54,9 @@ export default function Dashboard() {
       setLogs(fetchedLogs.slice(0, 3)); // Only keep 3 recent for UI
     });
 
-    // Fetch total resources
     const qRes = query(collection(db, "resources"), where("userId", "==", user.uid), orderBy("createdAt", "desc"));
     const unsubRes = onSnapshot(qRes, (snapshot) => {
       setTotalResources(snapshot.size);
-      
-      const fetchedRes = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Resource[];
-      
-      setResources(fetchedRes.slice(0, 3)); // Only keep 3 recent for UI
     });
 
     const qCode = query(collection(db, "coding_stuff"), where("userId", "==", user.uid));
@@ -107,7 +94,7 @@ export default function Dashboard() {
     { name: "Thesis chapters", value: totalChapters.toString(), icon: GraduationCap, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-100 dark:bg-indigo-900/50", border: "border-indigo-200 dark:border-indigo-800" },
     { name: "Personal Outcomes", value: totalOutcomes.toString(), icon: Award, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/50", border: "border-amber-200 dark:border-amber-800" },
     { name: "Resources", value: totalResources.toString(), icon: BookOpen, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/50", border: "border-emerald-200 dark:border-emerald-800" },
-    { name: "Code Snippets", value: totalSnippets.toString(), icon: Code, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/50", border: "border-purple-200 dark:border-purple-800" },
+    { name: "Coding Stuff", value: totalSnippets.toString(), icon: Code, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/50", border: "border-purple-200 dark:border-purple-800" },
   ];
 
   return (

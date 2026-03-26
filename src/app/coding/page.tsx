@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink, Database } from "lucide-react";
+import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink, Database, Pencil, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 interface CodingItem {
   id: string;
@@ -22,6 +22,8 @@ export default function CodingStuff() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -55,29 +57,56 @@ export default function CodingStuff() {
     return () => unsubscribe();
   }, [user]);
 
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    if (activeMenuId) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [activeMenuId]);
+
+  const resetForm = () => {
+    setTitle("");
+    setType("snippet");
+    setContent("");
+    setEditingId(null);
+    setIsFormOpen(false);
+  };
+
+  const handleEdit = (item: CodingItem) => {
+    setEditingId(item.id);
+    setTitle(item.title);
+    setType(item.type);
+    setContent(item.content);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !title.trim() || !content.trim()) return;
 
     setIsSaving(true);
     try {
-      // If type is not snippet, content field serves as URL optionally, or just note. 
-      // User can input URL directly in content.
       const isUrl = content.startsWith("http");
-      
-      await addDoc(collection(db, "coding_stuff"), {
-        userId: user.uid,
+      const itemData = {
         title,
         type,
         content,
         url: isUrl && type !== "snippet" ? content : "",
-        createdAt: serverTimestamp()
-      });
+      };
 
-      setTitle("");
-      setType("snippet");
-      setContent("");
-      setIsFormOpen(false);
+      if (editingId) {
+        await updateDoc(doc(db, "coding_stuff", editingId), itemData);
+      } else {
+        await addDoc(collection(db, "coding_stuff"), {
+          ...itemData,
+          userId: user.uid,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      resetForm();
     } catch (error) {
       console.error("Error saving coding item: ", error);
       alert("Failed to save snippet.");
@@ -123,7 +152,10 @@ export default function CodingStuff() {
           <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">Snippets, GitHub Repos, and implementation notes.</p>
         </div>
         <button
-          onClick={() => setIsFormOpen(!isFormOpen)}
+          onClick={() => {
+            if (isFormOpen) resetForm();
+            else setIsFormOpen(true);
+          }}
           className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 px-4 py-2 rounded-lg font-medium transition-colors"
         >
           <Plus className={`h-4 w-4 transition-transform ${isFormOpen ? "rotate-45" : ""}`} />
@@ -133,7 +165,9 @@ export default function CodingStuff() {
 
       {isFormOpen && (
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 animate-in slide-in-from-top-4 fade-in duration-200 transition-colors">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 transition-colors">Add New Code Item</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 transition-colors">
+            {editingId ? "Edit Code Item" : "Add New Code Item"}
+          </h2>
           <form className="space-y-4" onSubmit={handleSaveItem}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -181,7 +215,7 @@ export default function CodingStuff() {
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSaving ? "Saving..." : "Save Item"}
+                {isSaving ? "Saving..." : editingId ? "Update Item" : "Save Item"}
               </button>
             </div>
           </form>
@@ -201,9 +235,35 @@ export default function CodingStuff() {
           {items.map((item) => (
             <div key={item.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 flex flex-col h-full hover:shadow-md dark:hover:shadow-slate-800/50 transition-all group relative">
               
-              <button onClick={() => handleDelete(item.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="Delete Item">
-                 <Trash2 className="h-4 w-4" />
-              </button>
+              <div className="absolute top-4 right-4 z-20">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                  }} 
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                  title="Settings"
+                >
+                  <Settings className={`h-4 w-4 transition-transform duration-300 ${activeMenuId === item.id ? "rotate-90" : ""}`} />
+                </button>
+                
+                {activeMenuId === item.id && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                    <button 
+                      onClick={() => handleEdit(item)} 
+                      className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)} 
+                      className="w-full px-4 py-2 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-center justify-between mb-4 pr-6">
                 <div className="flex items-center gap-3">
