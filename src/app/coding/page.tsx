@@ -5,6 +5,11 @@ import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import Editor from "react-simple-code-editor";
+import { highlight, languages } from "prismjs";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-javascript";
+import "prismjs/themes/prism-tomorrow.css";
 
 interface CodingItem {
   id: string;
@@ -199,14 +204,32 @@ export default function CodingStuff() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 transition-colors">
                 {type === "snippet" ? "Code Block *" : "URL / Description *"}
               </label>
-              <textarea
-                rows={4}
-                required
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={type === "snippet" ? "Paste code snippet here..." : "Paste URL or write link details..."}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-shadow resize-y font-mono text-sm"
-              ></textarea>
+              {type === "snippet" ? (
+                <div className="border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-slate-500 dark:focus-within:ring-slate-400 bg-slate-900 min-h-[400px] transition-shadow">
+                  <Editor
+                    value={content}
+                    onValueChange={code => setContent(code)}
+                    highlight={code => highlight(code, languages.javascript, "javascript")}
+                    padding={20}
+                    placeholder="Paste code snippet here..."
+                    style={{
+                      fontFamily: '"Fira code", "Fira Mono", monospace',
+                      fontSize: 14,
+                      minHeight: "400px",
+                    }}
+                    className="outline-none text-slate-100"
+                  />
+                </div>
+              ) : (
+                <textarea
+                  rows={4}
+                  required
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Paste URL or write link details..."
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-shadow resize-y font-mono text-sm"
+                ></textarea>
+              )}
             </div>
             <div className="flex justify-end pt-2">
               <button
@@ -289,7 +312,11 @@ export default function CodingStuff() {
                     </button>
                   </div>
                   <pre className="bg-slate-900 dark:bg-slate-950 text-slate-50 p-4 rounded-xl overflow-x-auto text-sm font-mono leading-relaxed h-full border dark:border-slate-800">
-                    <code>{item.content}</code>
+                    <code 
+                      dangerouslySetInnerHTML={{ 
+                        __html: highlight(item.content, languages.javascript, "javascript") 
+                      }} 
+                    />
                   </pre>
                 </div>
               ) : (
