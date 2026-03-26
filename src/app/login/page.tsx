@@ -44,7 +44,7 @@ export default function Login() {
             <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-xl">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">ResearchTracker</span>
+            <span className="text-2xl font-bold tracking-tight">Capstone</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
@@ -75,12 +75,12 @@ export default function Login() {
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">ResearchTracker</span>
+            <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Capstone</span>
           </div>
 
           <div className="mb-10 text-center lg:text-left">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-              Welcome to ResearchTracker
+              Welcome to Capstone
             </h2>
             <p className="text-slate-500 dark:text-slate-400">
               Sign in with your Google account to access your workspace securely.

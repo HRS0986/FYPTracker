@@ -32,7 +32,7 @@ export default function TopNavbar() {
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
           <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-            ResearchTracker
+            Capstone
           </span>
         </div>
         <div className="flex items-center gap-3">

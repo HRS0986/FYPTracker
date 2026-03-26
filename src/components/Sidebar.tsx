@@ -23,7 +23,7 @@ export default function Sidebar() {
     <div className="hidden md:flex h-screen w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 transition-colors">
       <div className="flex h-16 items-center px-6 border-b border-slate-200 dark:border-slate-800">
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-          ResearchTracker
+          Capstone
         </h1>
       </div>
       <div className="flex-1 overflow-y-auto py-4">
