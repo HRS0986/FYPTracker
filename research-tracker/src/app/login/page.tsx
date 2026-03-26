@@ -1,31 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { Lock, Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
     setError("");
+    setIsLoading(true);
     
     try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
       router.push("/");
     } catch (err: any) {
-      setError(err.message || "An error occurred during authentication.");
+      console.error(err);
+      setError(err.message || "An error occurred during Google authentication.");
+      setIsLoading(false);
     }
   };
 
@@ -83,12 +80,10 @@ export default function Login() {
 
           <div className="mb-10 text-center lg:text-left">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-              {isRegistering ? "Create Account" : "Welcome Back"}
+              Welcome to ResearchTracker
             </h2>
             <p className="text-slate-500 dark:text-slate-400">
-              {isRegistering 
-                ? "Enter your details below to set up your workspace." 
-                : "Please enter your details to sign in."}
+              Sign in with your Google account to access your workspace securely.
             </p>
           </div>
 
@@ -99,56 +94,29 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleAuth} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/10 dark:focus:ring-blue-500/10 focus:border-blue-600 dark:focus:border-blue-500 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-600 shadow-sm"
-                placeholder="researcher@example.com"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/10 dark:focus:ring-blue-500/10 focus:border-blue-600 dark:focus:border-blue-500 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-600 shadow-sm"
-                placeholder="••••••••••••"
-                required
-              />
-            </div>
-            
+          <div className="space-y-5">
             <button
-              type="submit"
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 group mt-4"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="w-full py-4 px-6 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold transition-all shadow-sm flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isRegistering ? "Sign Up" : "Sign In"}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22.56 12.25C22.56 11.47 22.49 10.74 22.37 10.05H12V14.22H17.92C17.65 15.58 16.89 16.73 15.73 17.51V20.21H19.29C21.37 18.29 22.56 15.52 22.56 12.25Z" fill="#4285F4"/>
+                  <path d="M12 23C14.97 23 17.46 22.02 19.3 20.21L15.74 17.51C14.75 18.17 13.48 18.57 12 18.57C9.13 18.57 6.69 16.63 5.82 14.04H2.15V16.89C3.96 20.49 7.68 23 12 23Z" fill="#34A853"/>
+                  <path d="M5.82 14.04C5.59 13.38 5.46 12.7 5.46 12C5.46 11.3 5.6 10.62 5.82 9.96V7.12H2.15C1.41 8.6 1 10.25 1 12C1 13.75 1.41 15.4 2.15 16.89L5.82 14.04Z" fill="#FBBC05"/>
+                  <path d="M12 5.43C13.62 5.43 15.06 5.99 16.21 7.08L19.38 3.9C17.45 2.1 14.96 1 12 1C7.68 1 3.96 3.51 2.15 7.12L5.82 9.96C6.69 7.37 9.13 5.43 12 5.43Z" fill="#EA4335"/>
+                </svg>
+              )}
+              {isLoading ? "Signing in..." : "Continue with Google"}
             </button>
-          </form>
+          </div>
 
           <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              {isRegistering ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRegistering(!isRegistering);
-                  setError("");
-                }}
-                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors focus:outline-none"
-              >
-                {isRegistering ? "Sign In" : "Sign Up"}
-              </button>
+              By signing in, you agree to our Terms of Service and Privacy Policy.
             </p>
           </div>
           
