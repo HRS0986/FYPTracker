@@ -50,9 +50,9 @@ export default function Login() {
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
             Elevate Your <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-200">
-              Prompt Injection
+              Final Year Research
             </span><br />
-            Research.
+            Progress.
           </h1>
           <p className="text-lg text-blue-100/80 mb-10 leading-relaxed font-light">
             An advanced, premium workspace designed specifically for tracking exploits, analyzing small language models, and organizing critical payloads.

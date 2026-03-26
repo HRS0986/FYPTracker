@@ -80,7 +80,7 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 transition-colors">Welcome back!</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">Here is an overview of your prompt injection research.</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">Here is an overview of your final year research.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -146,15 +146,6 @@ export default function Dashboard() {
                 ))
               )}
             </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 backdrop-blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"></div>
-             <h3 className="font-bold text-lg mb-2 relative z-10">Capture Exploit Vectors</h3>
-             <p className="text-indigo-100 text-sm mb-4 relative z-10">Found a new prompt jailbreak? Save the snippet to test locally.</p>
-             <Link href="/coding" className="inline-flex bg-white text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-50 transition-colors relative z-10">
-               Add Snippet →
-             </Link>
           </div>
         </div>
       </div>

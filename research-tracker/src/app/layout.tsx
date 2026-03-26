@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Research Progress Tracker",
-  description: "Track prompt injection detection research using small language models.",
+  description: "Track your final year research progress.",
 };
 
 export default function RootLayout({

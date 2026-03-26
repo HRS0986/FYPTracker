@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Code, FileText, LayoutDashboard, Settings, LogOut } from "lucide-react";
+import { BarChart3, Code, FileText, LayoutDashboard, Settings, LogOut, Award } from "lucide-react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -15,6 +15,7 @@ export default function Sidebar() {
     { name: "Daily Progress", href: "/progress", icon: BarChart3 },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Coding Stuff", href: "/coding", icon: Code },
+    { name: "Personal Outcomes", href: "/outcomes", icon: Award },
   ];
 
   return (
