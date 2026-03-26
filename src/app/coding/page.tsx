@@ -258,46 +258,49 @@ export default function CodingStuff() {
           {items.map((item) => (
             <div key={item.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 flex flex-col h-full hover:shadow-md dark:hover:shadow-slate-800/50 transition-all group relative">
               
-              <div className="absolute top-4 right-4 z-20">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveMenuId(activeMenuId === item.id ? null : item.id);
-                  }} 
-                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
-                  title="Settings"
-                >
-                  <Settings className={`h-4 w-4 transition-transform duration-300 ${activeMenuId === item.id ? "rotate-90" : ""}`} />
-                </button>
-                
-                {activeMenuId === item.id && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                    <button 
-                      onClick={() => handleEdit(item)} 
-                      className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
-                    >
-                      <Pencil className="h-3.5 w-3.5" /> Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(item.id)} 
-                      className="w-full px-4 py-2 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between mb-4 pr-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 transition-colors">
                     {getIcon(item.type)}
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-slate-100 leading-snug transition-colors pr-2">{item.title}</h3>
                 </div>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md transition-colors whitespace-nowrap">
-                  {item.type}
-                </span>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md transition-colors whitespace-nowrap">
+                    {item.type}
+                  </span>
+                  
+                  <div className="relative z-20">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                      }} 
+                      className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                      title="Settings"
+                    >
+                      <Settings className={`h-4 w-4 transition-transform duration-300 ${activeMenuId === item.id ? "rotate-90" : ""}`} />
+                    </button>
+                    
+                    {activeMenuId === item.id && (
+                      <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button 
+                          onClick={() => handleEdit(item)} 
+                          className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
+                        >
+                          <Pencil className="h-3.5 w-3.5" /> Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(item.id)} 
+                          className="w-full px-4 py-2 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {item.type === "snippet" ? (

@@ -269,7 +269,7 @@ export default function Resources() {
                 )}
               </div>
 
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-3 pr-10">
                 <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 transition-colors">
                   {getIcon(resource.type)}
                 </div>
