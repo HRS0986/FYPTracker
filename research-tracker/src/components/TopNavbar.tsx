@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Bell, LayoutDashboard, BarChart3, FileText, Code } from "lucide-react";
+import { Menu, X, Bell, LayoutDashboard, BarChart3, FileText, Code, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function TopNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,8 +35,11 @@ export default function TopNavbar() {
         </div>
         <div className="flex items-center gap-3">
           <ThemeSwitcher />
-          <button className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-            <Bell className="h-5 w-5" />
+          <button 
+            onClick={() => signOut(auth)}
+            className="text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
           </button>
         </div>
       </header>

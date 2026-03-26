@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Code, FileText, LayoutDashboard, Settings } from "lucide-react";
+import { BarChart3, Code, FileText, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -49,10 +51,13 @@ export default function Sidebar() {
           <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Theme</span>
           <ThemeSwitcher />
         </div>
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
-          <Settings className="h-5 w-5 text-slate-400 dark:text-slate-500" />
-          Settings
-        </div>
+        <button 
+          onClick={() => signOut(auth)}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+        >
+          <LogOut className="h-5 w-5" />
+          Logout
+        </button>
       </div>
     </div>
   );
