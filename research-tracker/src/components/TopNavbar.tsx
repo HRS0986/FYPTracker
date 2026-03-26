@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Bell, LayoutDashboard, BarChart3, FileText, Code, LogOut, Award } from "lucide-react";
+import { Menu, X, Bell, LayoutDashboard, BarChart3, FileText, Code, LogOut, Award, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -15,9 +15,10 @@ export default function TopNavbar() {
   const links = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Daily Progress", href: "/progress", icon: BarChart3 },
+    { name: "Thesis", href: "/thesis", icon: GraduationCap },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Coding Stuff", href: "/coding", icon: Code },
-    { name: "Outcomes", href: "/outcomes", icon: Award },
+    { name: "Personal Outcomes", href: "/outcomes", icon: Award },
   ];
 
   return (
