@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, Plus, BookOpen, Video, Globe, Loader2, Trash2 } from "lucide-react";
+import { ExternalLink, Plus, BookOpen, Video, Globe, Loader2, Trash2, MessageSquare, FileText } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "firebase/firestore";
@@ -12,6 +12,7 @@ interface Resource {
   url: string;
   type: string;
   notes: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt: any;
 }
 
@@ -96,6 +97,10 @@ export default function Resources() {
         return <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />;
       case "video":
         return <Video className="h-5 w-5 text-red-600 dark:text-red-400" />;
+      case "ai-chat":
+        return <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
+      case "document":
+        return <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
       case "article":
       default:
         return <Globe className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />;
@@ -144,6 +149,8 @@ export default function Resources() {
                   <option value="paper">Research Paper</option>
                   <option value="article">Article / Blog</option>
                   <option value="video">Video</option>
+                  <option value="ai-chat">AI Chat Link</option>
+                  <option value="document">Document (GDocs, Office 365, etc.)</option>
                 </select>
               </div>
             </div>
@@ -187,7 +194,7 @@ export default function Resources() {
         </div>
       ) : resources.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center transition-colors text-slate-500 dark:text-slate-400">
-          No records yet. Click 'Add Resource' to create your first entry.
+          No records yet. Click &apos;Add Resource&apos; to create your first entry.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

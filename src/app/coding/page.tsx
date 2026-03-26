@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink, Database } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "firebase/firestore";
@@ -12,6 +12,7 @@ interface CodingItem {
   type: string;
   content: string;
   url?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdAt: any;
 }
 
@@ -100,6 +101,8 @@ export default function CodingStuff() {
         return <GitBranch className="h-5 w-5 text-slate-700 dark:text-slate-400" />;
       case "issue":
         return <Bug className="h-5 w-5 text-red-600 dark:text-red-400" />;
+      case "dataset":
+        return <Database className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />;
       case "snippet":
       default:
         return <Code2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
@@ -154,6 +157,7 @@ export default function CodingStuff() {
                   <option value="snippet">Code Snippet</option>
                   <option value="repo">GitHub Repository</option>
                   <option value="issue">Bug / Issue</option>
+                  <option value="dataset">Dataset</option>
                 </select>
               </div>
             </div>
@@ -190,7 +194,7 @@ export default function CodingStuff() {
         </div>
       ) : items.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center transition-colors text-slate-500 dark:text-slate-400">
-          No records yet. Click 'Add Item' to create your first snippet.
+          No records yet. Click &apos;Add Item&apos; to create your first snippet.
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
