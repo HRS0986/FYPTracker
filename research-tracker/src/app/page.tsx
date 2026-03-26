@@ -71,7 +71,7 @@ export default function Dashboard() {
 
   const statCards = [
     { name: "Progress Logs", value: totalLogs.toString(), icon: Activity, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/50", border: "border-blue-200 dark:border-blue-800" },
-    { name: "Research Papers", value: totalResources.toString(), icon: BookOpen, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-100 dark:bg-indigo-900/50", border: "border-indigo-200 dark:border-indigo-800" },
+    { name: "Resources", value: totalResources.toString(), icon: BookOpen, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-100 dark:bg-indigo-900/50", border: "border-indigo-200 dark:border-indigo-800" },
     { name: "Code Snippets", value: totalSnippets.toString(), icon: Code, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/50", border: "border-emerald-200 dark:border-emerald-800" },
     { name: "Focus Hours", value: "24", icon: Clock, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/50", border: "border-purple-200 dark:border-purple-800", isMock: true },
   ];
