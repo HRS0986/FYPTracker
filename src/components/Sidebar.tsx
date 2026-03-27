@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Code, FileText, LayoutDashboard, Settings, LogOut, Award, GraduationCap } from "lucide-react";
+import { BarChart3, Code, FileText, LayoutDashboard, LogOut, Award, GraduationCap, User } from "lucide-react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const links = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -48,18 +50,41 @@ export default function Sidebar() {
           })}
         </nav>
       </div>
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
-        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg">
-          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Theme</span>
-          <ThemeSwitcher />
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+        {user && (
+          <div className="px-3 py-2 flex items-center gap-3">
+            {user.photoURL ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img 
+                src={user.photoURL} 
+                alt={user.displayName || "User"} 
+                className="h-8 w-8 rounded-full border border-slate-200 dark:border-slate-700" 
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-800 flex items-center justify-center">
+                <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{user.displayName || "Researcher"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
+            </div>
+          </div>
+        )}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between px-3 py-2.5 rounded-lg">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Theme</span>
+            <ThemeSwitcher />
+          </div>
+          <button 
+            onClick={() => signOut(auth)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+          >
+            <LogOut className="h-5 w-5" />
+            Logout
+          </button>
         </div>
-        <button 
-          onClick={() => signOut(auth)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
-        >
-          <LogOut className="h-5 w-5" />
-          Logout
-        </button>
       </div>
     </div>
   );

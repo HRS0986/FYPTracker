@@ -103,7 +103,9 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 transition-colors">Welcome back!</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 transition-colors">
+          Welcome back, {user?.displayName?.split(' ')[0] || 'Researcher'}!
+        </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors">Here is an overview of your final year research.</p>
       </div>
 
