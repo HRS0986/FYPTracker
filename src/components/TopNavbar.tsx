@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Bell, LayoutDashboard, BarChart3, FileText, Code, LogOut, Award, GraduationCap } from "lucide-react";
+import { Menu, X, LayoutDashboard, BarChart3, FileText, Code, LogOut, Award, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { auth } from "@/lib/firebase";
@@ -31,6 +32,9 @@ export default function TopNavbar() {
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-1 shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+            <Image src="/logo.png" alt="Capstone Logo" width={24} height={24} className="object-contain" />
+          </div>
           <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
             Capstone
           </span>

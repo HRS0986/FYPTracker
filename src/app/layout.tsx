@@ -8,8 +8,8 @@ import { AppShell } from "@/components/AppShell";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Research Progress Tracker",
-  description: "Track your final year research progress.",
+  title: "Capstone - Research Progress Tracker",
+  description: "Track your final year research progress with Capstone.",
 };
 
 export default function RootLayout({

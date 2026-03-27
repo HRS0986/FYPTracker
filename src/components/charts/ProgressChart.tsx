@@ -45,12 +45,24 @@ export default function ProgressChart() {
     if (range === "week") startDate = subDays(new Date(), 7);
     else if (range === "month") startDate = subMonths(new Date(), 1);
 
-    return data
-      .filter(item => !startDate || isAfter(parseISO(item.date), startDate))
-      .map(item => ({
-        date: format(parseISO(item.date), "MMM dd"),
-        minutes: parseTimeSpent(item.timeSpent),
-        fullDate: item.date
+    // Filter and aggregate by date
+    const aggregated = data.reduce((acc: Record<string, number>, item) => {
+      const itemDate = parseISO(item.date);
+      if (startDate && !isAfter(itemDate, startDate)) return acc;
+      
+      const dateKey = item.date;
+      const mins = parseTimeSpent(item.timeSpent);
+      acc[dateKey] = (acc[dateKey] || 0) + mins;
+      return acc;
+    }, {});
+
+    // Convert to array, sort by date, and format for the chart
+    return Object.entries(aggregated)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, minutes]) => ({
+        date: format(parseISO(date), "MMM dd"),
+        minutes,
+        fullDate: date
       }));
   }, [data, range]);
 
