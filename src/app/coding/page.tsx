@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink, Database, Pencil, Settings } from "lucide-react";
+import { Plus, Code2, GitBranch, Bug, Copy, Check, Loader2, Trash2, ExternalLink, Database, Pencil, Settings, Maximize2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
@@ -10,6 +10,7 @@ import { highlight, languages } from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-tomorrow.css";
+import { useRouter } from "next/navigation";
 
 interface CodingItem {
   id: string;
@@ -23,6 +24,7 @@ interface CodingItem {
 
 export default function CodingStuff() {
   const { user } = useAuth();
+  const router = useRouter();
   const [items, setItems] = useState<CodingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -284,7 +286,15 @@ export default function CodingStuff() {
                     </button>
                     
                     {activeMenuId === item.id && (
-                      <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        {item.type === "snippet" && (
+                          <button 
+                            onClick={() => router.push(`/coding/${item.id}`)} 
+                            className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                          >
+                            <Maximize2 className="h-3.5 w-3.5" /> View Full Code
+                          </button>
+                        )}
                         <button 
                           onClick={() => handleEdit(item)} 
                           className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors"
@@ -314,7 +324,7 @@ export default function CodingStuff() {
                       {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
                     </button>
                   </div>
-                  <pre className="bg-slate-900 dark:bg-slate-950 text-slate-50 p-4 rounded-xl overflow-x-auto text-sm font-mono leading-relaxed h-full border dark:border-slate-800">
+                  <pre className="bg-slate-900 dark:bg-slate-950 text-slate-50 p-4 rounded-xl overflow-auto text-sm font-mono leading-relaxed max-h-[400px] border dark:border-slate-800">
                     <code 
                       dangerouslySetInnerHTML={{ 
                         __html: highlight(item.content, languages.javascript, "javascript") 
